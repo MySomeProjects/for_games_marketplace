@@ -1,6 +1,6 @@
 import time
 
-from telebot import TeleBot
+from telebot import TeleBot, apihelper
 import telebot
 
 from keyboard import start_menu, main_menu, admin_menu, add_path
@@ -64,8 +64,11 @@ def main_message_handlers(message):
         else:
             return
 
+    if message.text == "Поддержка👼":
+        bot.send_message(message.chat.id, "Если у вас возникли проблемы - @TpFNchik")
 
-@bot.callback_query_handler(func=lambda call: True)
+
+@bot.callback_query_handler(func=lambda callо: True)
 def main_callback_handlers(call):
     if call.data == "individual_cabinet":
         info = get_individual_cabinet(call.message.chat.id)
@@ -635,6 +638,9 @@ def step_for_add_with(message):
 
         bot.send_message(message.chat.id, "Отправьте текст Объявления")
         bot.register_next_step_handler(message, lambda message: step_for_add_with_2(message))
+    else:
+        bot.send_message(message.chat.id, "Пожалуйста отправьте именно изображение, и попробуйте снова")
+        return
 
 
 def step_for_add_with_2(message):
@@ -646,7 +652,10 @@ def step_for_add_with_2(message):
     markup.add(telebot.types.InlineKeyboardButton("Отмена❌", callback_data="adds_no"))
 
     with open(add_image, "rb") as img:
-        bot.send_photo(message.chat.id, photo=img, caption=add_text, reply_markup=markup)
+        try:
+            bot.send_photo(message.chat.id, photo=img, caption=add_text, reply_markup=markup)
+        except Exception as e:
+            bot.send_message(message.chat.id, f"Ошибка при отправке сообщения: {e}")
 
 
 def step_for_add_without(message):
@@ -659,5 +668,19 @@ def step_for_add_without(message):
     bot.send_message(message.chat.id, add_text, reply_markup=markup)
 
 
+def start_bot():
+    while True:
+        try:
+            print("Запуск бота...")
+            bot.polling(none_stop=True)
+        except apihelper.ApiTelegramException as e:
+            print(f"Ошибка API Telegram: {e}")
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка: {e}")
+        finally:
+            print("Перезапуск бота через 5 секунд...")
+            time.sleep(5)  # Задержка перед перезапуском
 
-bot.polling()
+
+if __name__ == "__main__":
+    start_bot()
