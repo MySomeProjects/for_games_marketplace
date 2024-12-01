@@ -302,6 +302,7 @@ def main_callback_handlers(call):
         )
 
     elif call.data.startswith("adds_yes_"):
+        bot.delete_message(call.message.chat.id, call.message.message_id)
         text = str(call.data.split("_")[2])
         adds_image = send_info_control(1, "add_image")
         user_ids = get_all_user_ids()
