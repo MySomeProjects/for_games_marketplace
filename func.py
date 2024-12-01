@@ -123,7 +123,7 @@ def get_individual_cabinet(user_id):
 
 def new_user_register(user_id: int, message):
     if get_user_by_id(user_id) == None:
-        ref_link = f"https://t.me/FH_shopBOT?start={message.chat.id}"
+        ref_link = f"https://t.me/FN_shopBot?start={message.chat.id}"
         cursor = connection.cursor()
         cursor.execute("INSERT INTO Users (user_id, refferal) VALUES (?, ?)", (user_id, ref_link))
         connection.commit()
