@@ -303,7 +303,8 @@ def main_callback_handlers(call):
 
     elif call.data.startswith("adds_yes_"):
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        text = str(call.data.split("_")[2])
+        text = send_info_control(1, "add_text")  # Получаем текст по ID из базы или временного хранилища
+
         adds_image = send_info_control(1, "add_image")
         user_ids = get_all_user_ids()
 
@@ -314,11 +315,11 @@ def main_callback_handlers(call):
                     bot.send_photo(user_id, photo=img, caption=text)
                 time.sleep(0.5)  # Задержка между отправкой сообщений
             except telebot.apihelper.ApiException as e:
-                # Проверяем, заблокировал ли пользователь бота
                 if "blocked" in str(e):
                     print(f"Пользователь {user_id} заблокировал бота. Пропускаем.")
                 else:
                     print(f"Ошибка при отправке пользователю {user_id}: {e}")
+
 
     elif call.data.startswith("adds_yeswithout_"):
         text = str(call.data.split("_")[2])
@@ -648,8 +649,11 @@ def step_for_add_with_2(message):
     add_text = message.text
     add_image = send_info_control(1, "add_image")
 
+    # Генерируем уникальный идентификатор для текста
+    message_id = changeinfo_control(1, "add_text", add_text)  # Сохраняем текст где-то и получаем ID
+
     markup = telebot.types.InlineKeyboardMarkup()
-    markup.add(telebot.types.InlineKeyboardButton("Отправить✅", callback_data=f"adds_yes_{add_text}"))
+    markup.add(telebot.types.InlineKeyboardButton("Отправить✅", callback_data=f"adds_yes_{message_id}"))
     markup.add(telebot.types.InlineKeyboardButton("Отмена❌", callback_data="adds_no"))
 
     with open(add_image, "rb") as img:
@@ -657,6 +661,7 @@ def step_for_add_with_2(message):
             bot.send_photo(message.chat.id, photo=img, caption=add_text, reply_markup=markup)
         except Exception as e:
             bot.send_message(message.chat.id, f"Ошибка при отправке сообщения: {e}")
+
 
 
 def step_for_add_without(message):
